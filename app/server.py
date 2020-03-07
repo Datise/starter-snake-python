@@ -28,7 +28,7 @@ def start():
     data = bottle.request.json
     print("START:", json.dumps(data))
 
-    response = {"color": "#00FF00", "headType": "regular", "tailType": "regular"}
+    response = {"color": "#b300ff", "headType": "regular", "tailType": "regular"}
     return HTTPResponse(
         status=200,
         headers={"Content-Type": "application/json"},
@@ -47,9 +47,17 @@ def move():
     print("MOVE:", json.dumps(data))
 
     # Choose a random direction to move in
-    directions = ["up", "down", "left", "right"]
-    move = random.choice(directions)
-
+    # directions = ["up", "down", "left", "right"]
+    # move = random.choice(directions)
+    if data['turn'] % 4 == 0:
+        move = "right"
+    else if data['turn'] % 3 == 0:
+        move "down"
+    else if data['turn'] % 2 == 0:
+        move "up"
+    else
+        move "left"
+    
     # Shouts are messages sent to all the other snakes in the game.
     # Shouts are not displayed on the game board.
     shout = "I am a python snake!"
