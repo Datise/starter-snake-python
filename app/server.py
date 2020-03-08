@@ -28,13 +28,65 @@ def start():
     data = bottle.request.json
     print("START:", json.dumps(data))
 
-    response = {"color": "#b300ff", "headType": "regular", "tailType": "regular"}
+    response = {"color": "#b300ff", "headType": "bwc-snowman", "tailType": "bolt"}
     return HTTPResponse(
         status=200,
         headers={"Content-Type": "application/json"},
         body=json.dumps(response),
     )
 
+def check_board_collision(board, pos):
+    
+    disallowed = []
+    print("X: " + str(pos["x"]))
+    print("Y: " + str(pos["y"]))
+    if pos["x"] - 1 < 0:
+        disallowed.append("left")
+    if pos["x"] + 1 > board["width"] - 1:
+        disallowed.append("right")
+    if pos["y"] - 1 < 0:
+        disallowed.append("up")
+    if pos["y"] + 1 > board["height"] - 1:
+        disallowed.append("down")
+    
+    print(disallowed)
+    return disallowed
+
+def check_body_collision(pos):
+    disallowed = []
+    
+def get_disallowed_moves(board, current_pos):
+    disallowed = check_board_collision(board, current_pos[0])
+    disallowed = disallowed + check_body_collision(current_pos)
+    return disallowed
+
+def decide_turn(board, body, turn):
+    disallowed_moves = get_disallowed_moves(board, body)
+    allowed_moves  =  []
+    moves = ["down", "up", "left", "right"]
+    for move in moves:
+        if move not in disallowed_moves:
+            allowed_moves.append(move)
+
+    if turn % 2 == 0 and not (turn % 4 == 0) and "down" in allowed_moves:
+        move = "down"
+    elif turn % 3 == 0 and not (turn % 4 == 0) and "left" in allowed_moves:
+        move = "left"
+    elif turn % 4 == 0 and "up" in allowed_moves:
+        move = "up"
+    else:
+        if "right" in allowed_moves:
+            move = "right"
+        else: 
+            move = allowed_moves[0]
+
+    if turn == 0 and "up" not in disallowed_moves:
+        move = "up"
+    
+    if turn == 1 and "right" not in disallowed_moves:
+        move = "right"
+
+    return move
 
 @bottle.post("/move")
 def move():
@@ -48,16 +100,8 @@ def move():
 
     # Choose a random direction to move in
     # directions = ["up", "down", "left", "right"]
-    # move = random.choice(directions)
-    if data['turn'] % 4 == 0:
-        move = "right"
-    else if data['turn'] % 3 == 0:
-        move "down"
-    else if data['turn'] % 2 == 0:
-        move "up"
-    else
-        move "left"
-    
+    # move = random.choice(directions)    
+    move = decide_turn(data["board"], data["you"]["body"], data["turn"])    
     # Shouts are messages sent to all the other snakes in the game.
     # Shouts are not displayed on the game board.
     shout = "I am a python snake!"
